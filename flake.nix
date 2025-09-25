@@ -60,6 +60,7 @@
         nativeBuildInputs = with pkgs; [
           asar
           copyDesktopItems
+          makeWrapper
           p7zip
         ];
 
@@ -85,24 +86,16 @@
         '';
 
         installPhase = ''
-          mkdir -p $out/bin $out/libexec $out/share/icons/hicolor/256x256/apps
+          mkdir -p $out/bin $out/share/notion $out/share/icons/hicolor/256x256/apps
           cp notion.png $out/share/icons/hicolor/256x256/apps/notion.png
-          cp app.asar $out/libexec
-          cp -r app.asar.unpacked $out/libexec
-          cat <<EOF > $out/bin/notion-app
-          #!${pkgs.runtimeShell}
-
-          XDG_CONFIG_HOME=\''${XDG_CONFIG_HOME:-~/.config}
-
-          # Allow users to override command-line options
-          if [[ -f \$XDG_CONFIG_HOME/notion-flags.conf ]]; then
-              NOTION_USER_FLAGS="\$(grep -v '^#' \$XDG_CONFIG_HOME/notion-flags.conf)"
-          fi
-
-          exec ${pkgs.electron_36}/bin/electron $out/libexec/app.asar \$NOTION_USER_FLAGS "\$@"
-          EOF
-
-          chmod a+x $out/bin/notion-app
+          cp app.asar $out/share/notion
+          cp -r app.asar.unpacked $out/share/notion
+          makeWrapper '${lib.getExe pkgs.electron_36}' "$out/bin/notion-app" \
+            --add-flags "$out/share/notion/app.asar" \
+            --add-flags "\''${NIXOS_OZONE_WL:+\''${WAYLAND_DISPLAY:+--ozone-platform-hint=auto --enable-features=WaylandWindowDecorations}}" \
+            --set-default ELECTRON_FORCE_IS_PACKAGED 1 \
+            --set LD_LIBRARY_PATH "${lib.makeLibraryPath [ pkgs.stdenv.cc.cc.lib ] }" \
+            --inherit-argv0
         '';
 
         desktopItems = [

@@ -65,6 +65,8 @@
         ];
 
         buildPhase = ''
+          runHook preBuild
+
           # Extract app.asar from installer
           7z x "${notionSetup}" "\$PLUGINSDIR/app-64.7z" -y -bse0 -bso0 || true
           7z x "./\$PLUGINSDIR/app-64.7z" "resources/app.asar" "resources/app.asar.unpacked" -y -bse0 -bso0 || true
@@ -83,9 +85,13 @@
 
           # Pack
           asar p "./asar_patched" "./app.asar" --unpack '*.node'
+
+          runHook postBuild
         '';
 
         installPhase = ''
+          runHook preInstall
+
           mkdir -p $out/bin $out/share/notion-linux $out/share/icons/hicolor/256x256/apps
           cp notion.png $out/share/icons/hicolor/256x256/apps/notion.png
           cp app.asar $out/share/notion-linux
@@ -96,6 +102,8 @@
             --set-default ELECTRON_FORCE_IS_PACKAGED 1 \
             --set LD_LIBRARY_PATH "${lib.makeLibraryPath [ pkgs.stdenv.cc.cc.lib ] }" \
             --inherit-argv0
+
+          runHook postInstall
         '';
 
         desktopItems = [

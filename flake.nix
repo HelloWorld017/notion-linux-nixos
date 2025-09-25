@@ -48,7 +48,7 @@
         stripRoot = false;
       });
 
-      package = pkgs.stdenv.mkDerivation rec {
+      package = pkgs.stdenv.mkDerivation {
         pname = "notion-linux-nixos";
         version = versions.notion;
         src = ./.;
@@ -104,7 +104,7 @@
             name = "notion-linux";
             desktopName = "Notion Linux";
             genericName = "Online Document Editor";
-            comment = meta.description;
+            comment = "Your connected workspace for wiki, docs & projects";
             exec = "notion-linux %U";
             icon = "notion";
             categories = [ "Office" ];
@@ -114,14 +114,6 @@
             terminal = false;
           })
         ];
-
-        meta = {
-          description = "Your connected workspace for wiki, docs & projects";
-          homepage = "https://github.com/HelloWorld017/notion-linux-nixos";
-          license = lib.licenses.unfree;
-          mainProgram = "notion-linux";
-          platforms = lib.platforms.linux;
-        };
       };
     in {
       packages.default = package;

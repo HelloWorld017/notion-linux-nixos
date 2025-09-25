@@ -49,7 +49,7 @@
       });
 
       package = pkgs.stdenv.mkDerivation rec {
-        pname = "notion-linux";
+        pname = "notion-linux-nixos";
         version = versions.notion;
         src = ./.;
 
@@ -86,12 +86,12 @@
         '';
 
         installPhase = ''
-          mkdir -p $out/bin $out/share/notion $out/share/icons/hicolor/256x256/apps
+          mkdir -p $out/bin $out/share/notion-linux $out/share/icons/hicolor/256x256/apps
           cp notion.png $out/share/icons/hicolor/256x256/apps/notion.png
-          cp app.asar $out/share/notion
-          cp -r app.asar.unpacked $out/share/notion
-          makeWrapper '${lib.getExe pkgs.electron_36}' "$out/bin/notion-app" \
-            --add-flags "$out/share/notion/app.asar" \
+          cp app.asar $out/share/notion-linux
+          cp -r app.asar.unpacked $out/share/notion-linux
+          makeWrapper '${lib.getExe pkgs.electron_36}' "$out/bin/notion-linux" \
+            --add-flags "$out/share/notion-linux/app.asar" \
             --add-flags "\''${NIXOS_OZONE_WL:+\''${WAYLAND_DISPLAY:+--ozone-platform-hint=auto --enable-features=WaylandWindowDecorations}}" \
             --set-default ELECTRON_FORCE_IS_PACKAGED 1 \
             --set LD_LIBRARY_PATH "${lib.makeLibraryPath [ pkgs.stdenv.cc.cc.lib ] }" \
@@ -101,11 +101,11 @@
         desktopItems = [
           (pkgs.makeDesktopItem {
             type = "Application";
-            name = "Notion";
-            desktopName = "Notion";
+            name = "notion-linux";
+            desktopName = "Notion Linux";
             genericName = "Online Document Editor";
             comment = meta.description;
-            exec = "notion-app %U";
+            exec = "notion-linux %U";
             icon = "notion";
             categories = [ "Office" ];
             mimeTypes = [ "x-scheme-handler/notion" ];
@@ -117,9 +117,9 @@
 
         meta = {
           description = "Your connected workspace for wiki, docs & projects";
-          homepage = "https://notion.com/";
+          homepage = "https://github.com/HelloWorld017/notion-linux-nixos";
           license = lib.licenses.unfree;
-          mainProgram = "notion-app";
+          mainProgram = "notion-linux";
           platforms = lib.platforms.linux;
         };
       };
